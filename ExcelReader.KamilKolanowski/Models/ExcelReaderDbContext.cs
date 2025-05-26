@@ -7,7 +7,7 @@ public class ExcelReaderDbContext : DbContext
     public ExcelReaderDbContext(DbContextOptions<ExcelReaderDbContext> options)
         : base(options) { }
 
-    DbSet<Sales> Sales { get; set; }
+    public DbSet<Sales> Sales { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

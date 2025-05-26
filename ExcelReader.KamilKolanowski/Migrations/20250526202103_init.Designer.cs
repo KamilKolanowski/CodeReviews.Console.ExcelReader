@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExcelReader.KamilKolanowski.Migrations
 {
     [DbContext(typeof(ExcelReaderDbContext))]
-    [Migration("20250525211959_init")]
+    [Migration("20250526202103_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -49,6 +49,11 @@ namespace ExcelReader.KamilKolanowski.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("SalesDate")
                         .HasColumnType("datetime2");

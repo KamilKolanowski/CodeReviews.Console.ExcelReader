@@ -47,6 +47,11 @@ namespace ExcelReader.KamilKolanowski.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("SalesDate")
                         .HasColumnType("datetime2");
 
