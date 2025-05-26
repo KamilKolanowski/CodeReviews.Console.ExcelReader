@@ -2,6 +2,7 @@
 using ExcelReader.KamilKolanowski.Models;
 using ExcelReader.KamilKolanowski.Repositories;
 using ExcelReader.KamilKolanowski.Services;
+using ExcelReader.KamilKolanowski.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,8 @@ class Program
             opt.UseSqlServer(connectionString)
         );
 
+        builder.Services.AddTransient<ViewOptions>();
+        builder.Services.AddTransient<MainView>();
         builder.Services.AddTransient<ExcelReaderService>();
         builder.Services.AddTransient<ExcelReaderController>();
         builder.Services.AddTransient<IDbRepository, DbRepository>();
@@ -50,8 +53,8 @@ class Program
             db.Database.EnsureCreated();
         }
 
-        var controller = app.Services.GetRequiredService<ExcelReaderController>();
-        controller.ProcessFile("sales.xlsx", "Sales");
+        var mainView = app.Services.GetRequiredService<MainView>();
+        mainView.Start();
         
     }
 

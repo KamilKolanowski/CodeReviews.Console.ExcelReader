@@ -3,7 +3,7 @@ using Spectre.Console;
 
 namespace ExcelReader.KamilKolanowski.Controllers;
 
-internal class ExcelReaderController
+public class ExcelReaderController
 {
     private readonly ExcelReaderService _excelReaderService;
 
