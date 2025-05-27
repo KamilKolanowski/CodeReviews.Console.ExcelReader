@@ -18,7 +18,7 @@ public class Sales
     [Required]
     [Column(TypeName = "decimal(18,2)")]
     public decimal Tax { get; set; }
-    
+
     [Column(TypeName = "decimal(18,2)")]
     public decimal Discount { get; set; }
 
@@ -33,6 +33,7 @@ public class Sales
     [Required]
     [StringLength(50)]
     public string? Market { get; set; }
+
     [Required]
     [StringLength(100)]
     public string? ProductName { get; set; }

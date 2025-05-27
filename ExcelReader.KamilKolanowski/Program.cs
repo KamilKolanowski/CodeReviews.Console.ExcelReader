@@ -13,7 +13,7 @@ namespace ExcelReader.KamilKolanowski;
 
 class Program
 {
-    static void Main()
+    static async Task Main()
     {
         var builder = Host.CreateApplicationBuilder();
         var modelBuilder = new ModelBuilder();
@@ -37,7 +37,7 @@ class Program
         modelBuilder.Entity<Sales>().Property(s => s.Price).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<Sales>().Property(s => s.Discount).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<Sales>().Property(s => s.Tax).HasColumnType("decimal(18,2)");
-        
+
         modelBuilder.Entity<Sales>().ToTable("Sales", schema: "TCSA");
 
         builder.Logging.ClearProviders();
@@ -54,8 +54,6 @@ class Program
         }
 
         var mainView = app.Services.GetRequiredService<MainView>();
-        mainView.Start();
-        
+        await mainView.Start();
     }
-
 }

@@ -10,8 +10,8 @@ public class DbRepository : IDbRepository
     {
         _excelReaderDbContext = excelReaderDbContext;
     }
-    
-    public IEnumerable<Sales?> GetSales(string type)
+
+    public IEnumerable<Sales?> GetSales()
     {
         var allSales = _excelReaderDbContext.Sales;
         return allSales;

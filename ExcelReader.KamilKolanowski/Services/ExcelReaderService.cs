@@ -1,6 +1,7 @@
 using ExcelReader.KamilKolanowski.Models;
 using ExcelReader.KamilKolanowski.Repositories;
 using OfficeOpenXml;
+using Spectre.Console;
 
 namespace ExcelReader.KamilKolanowski.Services;
 
@@ -12,14 +13,14 @@ public class ExcelReaderService : IExcelReaderService
     {
         _dbRepository = dbRepository;
     }
-    public IEnumerable<Sales> ReadExcelFile(string excelFilePath, string sheetName)
+
+    public IEnumerable<Sales> ReadExcelFile(FileInfo excelFile, string sheetName)
     {
         var sales = new List<Sales>();
 
         try
         {
-            FileInfo existingFile = new FileInfo(excelFilePath);
-            using (var package = new ExcelPackage(existingFile))
+            using (var package = new ExcelPackage(excelFile))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets[sheetName];
 
@@ -40,9 +41,7 @@ public class ExcelReaderService : IExcelReaderService
                     };
 
                     sales.Add(sale);
-                    
                 }
-                
             }
         }
         catch (Exception ex)
@@ -52,15 +51,20 @@ public class ExcelReaderService : IExcelReaderService
 
         return sales;
     }
-    
-    public void WriteExcelFile(string excelFilePath)
+
+    public void WriteExcelFile(IEnumerable<Sales> sales, string fileName)
     {
-        using (var package = new ExcelPackage(excelFilePath))
+        using (var package = new ExcelPackage(new FileInfo(fileName)))
         {
             var sheet = package.Workbook.Worksheets.Add("Sales");
+            sheet.Cells[1, 1].LoadFromCollection(sales);
             package.Save();
-            Console.WriteLine("test");
         }
+    }
+
+    public IEnumerable<Sales> ReadDataFromDatabase()
+    {
+        return _dbRepository.GetSales();
     }
 
     public void WriteExcelFileToDatabase(IEnumerable<Sales> sales)
