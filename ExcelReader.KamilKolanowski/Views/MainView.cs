@@ -108,7 +108,7 @@ public class MainView
         while (true)
         {
             var excelFilePath = AnsiConsole.Ask<string>(
-                "Specify the path of your file [yellow](case sensitive)[/] with its format:"
+                "Specify the [yellow]full[/] path of your file [yellow](case sensitive)[/] with its format:"
             );
             FileInfo existingFile = new FileInfo(excelFilePath);
             if (!existingFile.Exists)
