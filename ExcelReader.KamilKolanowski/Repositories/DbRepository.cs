@@ -13,14 +13,28 @@ public class DbRepository : IDbRepository
 
     public IEnumerable<Sales?> GetSales()
     {
-        var allSales = _excelReaderDbContext.Sales;
-        return allSales;
+        try
+        {
+            var allSales = _excelReaderDbContext.Sales;
+            return allSales;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     public Sales? GetSale(int id)
     {
-        var sale = _excelReaderDbContext.Sales.Find(id);
-        return sale;
+        try
+        {
+            var sale = _excelReaderDbContext.Sales.Find(id);
+            return sale;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     public void Insert(IEnumerable<Sales> sales)

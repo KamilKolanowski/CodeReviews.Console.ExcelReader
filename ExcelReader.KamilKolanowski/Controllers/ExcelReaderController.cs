@@ -13,19 +13,33 @@ public class ExcelReaderController
         _excelReaderService = excelReaderService;
     }
 
-    internal void ProcessFile(FileInfo excelFile, string sheetName)
+    internal bool ProcessFile(FileInfo excelFile, string sheetName)
     {
         var sales = _excelReaderService.ReadExcelFile(excelFile, sheetName);
-        _excelReaderService.WriteExcelFileToDatabase(sales);
+        if (sales.Any())
+        {
+            _excelReaderService.WriteExcelFileToDatabase(sales);
+            return true;
+        }
+        return false;
     }
 
-    internal void SaveToFile(string fileName)
+    internal void SaveToFile(string directory, string fileName)
     {
-        _excelReaderService.WriteExcelFile(_excelReaderService.ReadDataFromDatabase(), fileName);
+        _excelReaderService.WriteExcelFile(
+            _excelReaderService.ReadDataFromDatabase(),
+            directory,
+            fileName
+        );
     }
 
-    internal void PresentFile(FileInfo excelFile, string sheetName)
+    internal bool PresentFile(FileInfo excelFile, string sheetName)
     {
+        var sales = _excelReaderService.ReadExcelFile(excelFile, sheetName);
+        if (!sales.Any())
+        {
+            return false;
+        }
         var table = new Table { Title = new TableTitle($"[lime]{excelFile.Name}[/]") };
 
         table.AddColumn("SalesDate");
@@ -37,7 +51,6 @@ public class ExcelReaderController
         table.AddColumn("Market");
         table.AddColumn("ProductName");
 
-        var sales = _excelReaderService.ReadExcelFile(excelFile, sheetName);
         foreach (var sale in sales)
         {
             table.AddRow(
@@ -53,6 +66,7 @@ public class ExcelReaderController
         }
 
         AnsiConsole.Render(table);
+        return true;
     }
 
     internal void PresentTableFromDatabase()
@@ -69,20 +83,27 @@ public class ExcelReaderController
         table.AddColumn("ProductName");
 
         var sales = _excelReaderService.ReadDataFromDatabase();
-        foreach (var sale in sales)
+        if (!sales.Any())
         {
-            table.AddRow(
-                sale.SalesDate.ToString("dd/MM/yyyy hh:mm:ss"),
-                sale.Price.ToString(),
-                sale.Tax.ToString("G"),
-                sale.Discount.ToString("G"),
-                sale.Total.ToString("G"),
-                sale.Currency,
-                sale.Market,
-                sale.ProductName
-            );
+            AnsiConsole.MarkupLine("[red]No sales found![/]");
         }
+        else
+        {
+            foreach (var sale in sales)
+            {
+                table.AddRow(
+                    sale.SalesDate.ToString("dd/MM/yyyy hh:mm:ss"),
+                    sale.Price.ToString(),
+                    sale.Tax.ToString("G"),
+                    sale.Discount.ToString("G"),
+                    sale.Total.ToString("G"),
+                    sale.Currency,
+                    sale.Market,
+                    sale.ProductName
+                );
+            }
 
-        AnsiConsole.Render(table);
+            AnsiConsole.Render(table);
+        }
     }
 }

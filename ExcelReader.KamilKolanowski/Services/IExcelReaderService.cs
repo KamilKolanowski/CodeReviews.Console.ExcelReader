@@ -5,5 +5,5 @@ namespace ExcelReader.KamilKolanowski.Services;
 public interface IExcelReaderService
 {
     public IEnumerable<Sales> ReadExcelFile(FileInfo excelFile, string sheetName);
-    public void WriteExcelFile(IEnumerable<Sales> sales, string fileName);
+    public void WriteExcelFile(IEnumerable<Sales> sales, string directory, string fileName);
 }

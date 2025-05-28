@@ -56,42 +56,32 @@ public class MainView
                     var filePath = PromptForFilePath();
                     var sheetName = PromptForSheetName();
 
-                    _controller.ProcessFile(filePath, sheetName);
-                    await AnsiConsole
-                        .Progress()
-                        .StartAsync(async ctx =>
-                        {
-                            var loadData = ctx.AddTask("[green]Loading Data to Database [/]");
-
-                            while (!ctx.IsFinished)
-                            {
-                                await Task.Delay(200);
-
-                                loadData.Increment(8);
-                            }
-                        });
-
-                    AnsiConsole.MarkupLine(
-                        $"[green]Your {sheetName} Data was added to the database![/]"
-                    );
-                    var viewData = AnsiConsole.Confirm("Do you want to see the data?");
-                    if (viewData)
+                    var processedFile = _controller.ProcessFile(filePath, sheetName);
+                    if (processedFile)
                     {
-                        _controller.PresentTableFromDatabase();
+                        await LoadToDatabaseAnimation(sheetName);
+                        var viewData = AnsiConsole.Confirm("Do you want to see the data?");
+                        if (viewData)
+                        {
+                            _controller.PresentTableFromDatabase();
+                        }
                     }
                     GoBackToMenu();
                     break;
                 case ViewOptions.MenuOptions.ReadFile:
                     filePath = PromptForFilePath();
                     sheetName = PromptForSheetName();
-                    _controller.PresentFile(filePath, sheetName);
+                    var presentFile = _controller.PresentFile(filePath, sheetName);
 
-                    var checkIfUserWantToSave = AskIfUserWantToSaveToDatabase();
-                    if (checkIfUserWantToSave)
+                    if (presentFile)
                     {
-                        _controller.ProcessFile(filePath, sheetName);
+                        var checkIfUserWantToSave = AskIfUserWantToSaveToDatabase();
+                        if (checkIfUserWantToSave)
+                        {
+                            _controller.ProcessFile(filePath, sheetName);
+                        }
+                        await LoadToDatabaseAnimation(sheetName);
                     }
-
                     GoBackToMenu();
                     break;
                 case ViewOptions.MenuOptions.ReadTable:
@@ -100,8 +90,10 @@ public class MainView
                     break;
                 case ViewOptions.MenuOptions.SaveToFile:
                     var fileName = PromptForSaveFilePath();
-                    _controller.SaveToFile(fileName);
-                    AnsiConsole.MarkupLine($"[green]Data from Sales table has been saved to file[/]: [cyan1]{fileName}[/]");
+                    var fullPath = fileName.Item1.EndsWith("/")
+                        ? $"{fileName.Item1}{fileName.Item2}.xlsx"
+                        : $"{fileName.Item1}/{fileName.Item2}.xlsx";
+                    _controller.SaveToFile(fileName.Item1, fullPath);
                     GoBackToMenu();
                     break;
                 case ViewOptions.MenuOptions.Exit:
@@ -130,9 +122,12 @@ public class MainView
         }
     }
 
-    private string PromptForSaveFilePath()
+    private (string, string) PromptForSaveFilePath()
     {
-        return AnsiConsole.Ask<string>("Specify the path of your save:");
+        return (
+            AnsiConsole.Ask<string>("Specify the directory for saving your file:"),
+            AnsiConsole.Ask<string>("Specify the file name:")
+        );
     }
 
     private string PromptForSheetName()
@@ -149,5 +144,24 @@ public class MainView
     {
         AnsiConsole.MarkupLine("Press any key to go back to the menu.");
         Console.ReadKey();
+    }
+
+    private async Task LoadToDatabaseAnimation(string sheetName)
+    {
+        await AnsiConsole
+            .Progress()
+            .StartAsync(async ctx =>
+            {
+                var loadData = ctx.AddTask("[green]Loading Data to Database [/]");
+
+                while (!ctx.IsFinished)
+                {
+                    await Task.Delay(200);
+
+                    loadData.Increment(8);
+                }
+            });
+
+        AnsiConsole.MarkupLine($"[green]Your {sheetName} Data was added to the database![/]");
     }
 }

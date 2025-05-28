@@ -22,43 +22,63 @@ public class ExcelReaderService : IExcelReaderService
         {
             using (var package = new ExcelPackage(excelFile))
             {
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[sheetName];
-
-                int rowCount = worksheet.Dimension.End.Row;
-
-                for (int row = 2; row <= rowCount; row++)
+                var worksheet = package.Workbook.Worksheets[sheetName];
+                if (worksheet != null)
                 {
-                    var sale = new Sales
-                    {
-                        SalesDate = DateTime.Parse(worksheet.Cells[row, 1].Text),
-                        Price = decimal.Parse(worksheet.Cells[row, 2].Text),
-                        Tax = decimal.Parse(worksheet.Cells[row, 3].Text),
-                        Discount = decimal.Parse(worksheet.Cells[row, 4].Text),
-                        Total = decimal.Parse(worksheet.Cells[row, 5].Text),
-                        Currency = worksheet.Cells[row, 6].Text,
-                        Market = worksheet.Cells[row, 7].Text,
-                        ProductName = worksheet.Cells[row, 8].Text,
-                    };
+                    int rowCount = worksheet.Dimension.End.Row;
 
-                    sales.Add(sale);
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var sale = new Sales
+                        {
+                            SalesDate = DateTime.Parse(worksheet.Cells[row, 1].Text),
+                            Price = decimal.Parse(worksheet.Cells[row, 2].Text),
+                            Tax = decimal.Parse(worksheet.Cells[row, 3].Text),
+                            Discount = decimal.Parse(worksheet.Cells[row, 4].Text),
+                            Total = decimal.Parse(worksheet.Cells[row, 5].Text),
+                            Currency = worksheet.Cells[row, 6].Text,
+                            Market = worksheet.Cells[row, 7].Text,
+                            ProductName = worksheet.Cells[row, 8].Text,
+                        };
+
+                        sales.Add(sale);
+                    }
+
+                    return sales;
                 }
+                AnsiConsole.MarkupLine($"[red]Sheet '{sheetName}' does not exist.[/]");
+                return Enumerable.Empty<Sales>();
             }
         }
         catch (Exception ex)
         {
-            throw ex;
+            AnsiConsole.WriteException(ex);
+            return Enumerable.Empty<Sales>();
         }
-
-        return sales;
     }
 
-    public void WriteExcelFile(IEnumerable<Sales> sales, string fileName)
+    public void WriteExcelFile(IEnumerable<Sales> sales, string directory, string fileName)
     {
         using (var package = new ExcelPackage(new FileInfo(fileName)))
         {
+            if (!Directory.Exists(directory))
+            {
+                AnsiConsole.MarkupLine("[red]Directory doesn't exist![/]");
+                return;
+            }
+
+            if (File.Exists(fileName))
+            {
+                AnsiConsole.MarkupLine("[red]File already exist![/]");
+                return;
+            }
             var sheet = package.Workbook.Worksheets.Add("Sales");
             sheet.Cells[1, 1].LoadFromCollection(sales);
             package.Save();
+
+            AnsiConsole.MarkupLine(
+                $"[green]Data from Sales table has been saved to file[/]: [cyan1]{fileName}[/]"
+            );
         }
     }
 
